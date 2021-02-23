@@ -91,6 +91,20 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.MyViewHo
             }
         });
 
+
+holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+    @Override
+    public boolean onLongClick(View v) {
+        Intent email = new Intent(Intent.ACTION_SEND);
+        email.putExtra(Intent.EXTRA_EMAIL,new String[]{model.getEmailId()});
+        email.setType("message/rfc822");
+        context.startActivity(Intent.createChooser(email,"How To send mail"));
+       // Toast.makeText(context, "done", Toast.LENGTH_SHORT).show();
+
+        return true;
+    }
+});
+
     }
 
     @Override
