@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -85,6 +87,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.MyViewHo
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent intent = new Intent(context, UpdateActivity.class);
                 intent.putExtra("id",model.getId());
                 context.startActivity(intent);
@@ -95,11 +98,54 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.MyViewHo
 holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
     @Override
     public boolean onLongClick(View v) {
-        Intent email = new Intent(Intent.ACTION_SEND);
-        email.putExtra(Intent.EXTRA_EMAIL,new String[]{model.getEmailId()});
-        email.setType("message/rfc822");
-        context.startActivity(Intent.createChooser(email,"How To send mail"));
-       // Toast.makeText(context, "done", Toast.LENGTH_SHORT).show();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater layoutInflater = LayoutInflater.from(context);
+        View view = layoutInflater.inflate(R.layout.options_layout, null);
+        builder.setView(view);
+        final AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
+        final Button messageBtn = view.findViewById(R.id.option_sendMessage);
+        final Button emailBtn = view.findViewById(R.id.option_sendMail);
+
+        messageBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent smsIntent = new Intent(Intent.ACTION_VIEW);
+
+                smsIntent.setData(Uri.parse("smsto:"));
+                smsIntent.setType("vnd.android-dir/mms-sms");
+                smsIntent.putExtra("address"  , new String (model.getPhoneNumber()));
+               // smsIntent.putExtra("sms_body"  , "");
+                context.startActivity(smsIntent);
+                /*try {
+                    context.startActivity(smsIntent);
+                    Log.i("Finished sending SMS...", "");
+                } catch (android.content.ActivityNotFoundException ex) {
+                    Toast.makeText(context.getApplicationContext(), "Fail to send message", Toast.LENGTH_SHORT).show();
+                }*/
+
+
+                alertDialog.dismiss();
+            }
+        });
+
+        emailBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent email = new Intent(Intent.ACTION_SEND);
+                email.putExtra(Intent.EXTRA_EMAIL,new String[]{model.getEmailId()});
+                // email.setType("message/rfc822");
+                email.setType("text/plain");
+                context.startActivity(Intent.createChooser(email,"How To send mail"));
+                // Toast.makeText(context, "done", Toast.LENGTH_SHORT).show();
+                alertDialog.dismiss();
+            }
+        });
+
+
 
         return true;
     }
